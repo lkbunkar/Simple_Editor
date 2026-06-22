@@ -1,0 +1,1592 @@
+<Window x:Class="Passpix.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Simple Editor" Height="820" Width="1240"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBgBrush}"
+        Icon="assets/logo.ico"
+        FontFamily="{DynamicResource PrimaryFont}"
+        FontSize="{DynamicResource BodyFontSize}">
+
+    <Window.Resources>
+        <!-- Modern Underline TabItem Style -->
+        <Style x:Key="UnderlineTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="15,10" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" BorderThickness="0,0,0,3" BorderBrush="Transparent" Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernTabControl" TargetType="TabControl">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <!-- Vertical Left TabItem Style for PDF suite -->
+        <Style x:Key="LeftTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="12,12" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" BorderThickness="3,0,0,0" BorderBrush="Transparent" Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <ContentPresenter ContentSource="Header" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource HoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <!-- Main Content Host (Sidebar completely removed, spans full width) -->
+            <Grid Margin="25">
+                <!-- 1. Home Dashboard Panel (Hides Sidebar) -->
+                <Grid x:Name="PanelHome" Visibility="Visible">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,10,0,20">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Welcome back" Foreground="{DynamicResource MutedTextBrush}" FontSize="14" FontWeight="SemiBold"/>
+                            <TextBlock Text="Dashboard" Foreground="{DynamicResource TextBrush}" FontSize="32" FontWeight="Bold" Margin="0,5,0,0"/>
+                        </StackPanel>
+                        <!-- Top-Right Settings Gear Icon wheel (Home Page Only) -->
+                        <Button x:Name="BtnHomeSettings" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource ModernButton}" Width="44" Height="44" Padding="0" Click="BtnNavSettings_Click" ToolTip="Settings">
+                            <Path Data="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46.2 14.25 0 14 0h-4c-.25 0-.46.2-.49.45L9.13 3.1c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.25.24.45.49.45h4c.25 0 .46-.2.49-.45l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" 
+                                  Fill="{DynamicResource TextBrush}" Stretch="Uniform" Margin="10"/>
+                        </Button>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1" Text="Quick Access Tools" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource LargeHeadingFontSize}" FontWeight="SemiBold" Margin="0,15,0,10"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Orientation="Vertical">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="20" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="20" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Card 1: Passpix -->
+                                <Border Grid.Column="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="12" Padding="{DynamicResource CardPadding}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Row="0" Source="assets/passpix_icon.png" Width="48" Height="48" HorizontalAlignment="Left" Margin="0,0,0,15"/>
+                                        <TextBlock Grid.Row="1" Text="Passport Photo (Passpix)" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource LargeHeadingFontSize}" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        <TextBlock Grid.Row="2" Text="Crop portraits visually with mouse zoom &amp; handles, remove background offline using local AI, and layout precise grid print sheets." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource BodyFontSize}" TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,20"/>
+                                        <Button Grid.Row="3" Content="Launch Passpix" Click="BtnNavPasspix_Click" Style="{StaticResource AccentButton}" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Card 2: PDF Utility -->
+                                <Border Grid.Column="2" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="12" Padding="{DynamicResource CardPadding}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Row="0" Source="assets/pdf_icon.png" Width="48" Height="48" HorizontalAlignment="Left" Margin="0,0,0,15"/>
+                                        <TextBlock Grid.Row="1" Text="PDF Utility Suite" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource LargeHeadingFontSize}" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        <TextBlock Grid.Row="2" Text="Access all 12 tools including conversions, splits, merges, page reorders, rotations, password protections, and numbering with live thumbnails." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource BodyFontSize}" TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,20"/>
+                                        <Button Grid.Row="3" Content="Open PDF Suite" Click="BtnNavPdf_Click" Style="{StaticResource AccentButton}" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Card 3: Compressor -->
+                                <Border Grid.Column="4" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="12" Padding="{DynamicResource CardPadding}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Row="0" Source="assets/compress_icon.png" Width="48" Height="48" HorizontalAlignment="Left" Margin="0,0,0,15"/>
+                                        <TextBlock Grid.Row="1" Text="Image &amp; PDF Compressor" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource LargeHeadingFontSize}" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        <TextBlock Grid.Row="2" Text="Compress JPEGs, PNGs, and PDF files. Set target sizes in KB. The optimizer guarantees outputs stay strictly under the limit." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource BodyFontSize}" TextWrapping="Wrap" LineHeight="18" Margin="0,0,0,20"/>
+                                        <Button Grid.Row="3" Content="Launch Compressor" Click="BtnNavCompress_Click" Style="{StaticResource AccentButton}" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+
+                            <!-- Recent Files Section -->
+                            <Border Margin="0,20,0,10" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="12" Padding="{DynamicResource CardPadding}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="Recent Files" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource LargeHeadingFontSize}" FontWeight="Bold"/>
+                                    
+                                    <Grid Grid.Row="2">
+                                        <StackPanel x:Name="PnlRecentFilesList" Orientation="Vertical"/>
+                                        <TextBlock x:Name="TxtNoRecentFiles" Text="No recent files. Saved images or PDFs will appear here." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource BodyFontSize}" HorizontalAlignment="Center" Margin="0,10,0,10"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                </Grid>
+
+                <!-- 2. Passpix Panel -->
+                <Grid x:Name="PanelPasspix" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="Passport Photo Toolkit" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" FontWeight="SemiBold"/>
+                        <TextBlock Text="Passpix Creator" Foreground="{DynamicResource TextBrush}" FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <!-- Passpix Body Grid -->
+                    <Grid Grid.Row="1" Margin="0,5,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="320" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column Controls -->
+                        <Border Grid.Column="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel>
+                                    <!-- Step 1: Select Image -->
+                                    <StackPanel>
+                                        <TextBlock Text="Step 1: Select Portrait" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,5"/>
+                                        <Button x:Name="BtnPasspixSelect" Content="Select Image" Click="BtnPasspixSelect_Click" Style="{StaticResource AccentButton}" HorizontalAlignment="Stretch"/>
+                                        <TextBlock x:Name="LblPasspixFileName" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="0,12"/>
+
+                                    <!-- Step 2: Crop Inputs -->
+                                    <StackPanel>
+                                        <TextBlock Text="Step 2: Crop Specifications" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Width (in)" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                                <TextBox x:Name="TxtCropWidth" Text="1.19" TextChanged="TxtCropDimensions_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Height (in)" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                                <TextBox x:Name="TxtCropHeight" Text="1.53" TextChanged="TxtCropDimensions_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="4">
+                                                <TextBlock Text="DPI" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                                <TextBox x:Name="TxtCropDpi" Text="300" TextChanged="TxtCropDimensions_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center" IsReadOnly="True"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="0,12"/>
+
+                                    <!-- Step 3: Background Removal -->
+                                    <StackPanel>
+                                        <TextBlock Text="Step 3: Background Settings" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        
+                                        <CheckBox x:Name="ChkRemoveBg" Content="Remove BG (Offline AI)" Checked="ChkRemoveBg_Checked" Unchecked="ChkRemoveBg_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Solid Background Fill" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="CmbSolidFill" SelectionChanged="CmbSolidFill_SelectionChanged" Style="{StaticResource ModernComboBox}" HorizontalAlignment="Stretch">
+                                            <ComboBoxItem Content="white" IsSelected="True" />
+                                            <ComboBoxItem Content="transparent" />
+                                            <ComboBoxItem Content="blue" />
+                                            <ComboBoxItem Content="red" />
+                                            <ComboBoxItem Content="light blue" />
+                                            <ComboBoxItem x:Name="CmbCustomColor" Content="Custom Color..." PreviewMouseLeftButtonDown="CmbCustomColor_PreviewMouseLeftButtonDown" />
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <Separator Background="{DynamicResource BorderBrush}" Height="1" Margin="0,12"/>
+
+                                    <!-- Step 4: Grid Sheet Layout -->
+                                    <StackPanel>
+                                        <TextBlock Text="Step 4: Grid Sheet Settings" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                        
+                                        <TextBlock Text="Page Size" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                        <ComboBox x:Name="CmbPageSize" SelectionChanged="CmbPageSize_SelectionChanged" Style="{StaticResource ModernComboBox}" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+                                            <ComboBoxItem Content="4x6" IsSelected="True"/>
+                                            <ComboBoxItem Content="5x7" />
+                                            <ComboBoxItem Content="A4" />
+                                        </ComboBox>
+
+                                        <TextBlock Text="Copies" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,3"/>
+                                        <TextBox x:Name="TxtCopies" Text="9" TextChanged="TxtCopies_TextChanged" Style="{StaticResource ModernTextBox}" Margin="0,0,0,5"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Right Column Preview Area -->
+                        <Border Grid.Column="2" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                            <TabControl x:Name="TcPasspix" Style="{StaticResource ModernTabControl}" SelectionChanged="PasspixTabControl_SelectionChanged">
+                                <!-- Tab 1: Portrait & Cropper -->
+                                <TabItem Header="Passport Photo Cropper" Style="{StaticResource UnderlineTabItem}">
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="15" />
+                                            <ColumnDefinition Width="280" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Left side: Interactive Cropper Container with MouseWheel & Drag Zoom/Pan -->
+                                        <Border Grid.Column="0" Background="#0A000000" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="4" ClipToBounds="True">
+                                            <Grid x:Name="GridCropperContainer" Background="#0F172A"
+                                                  MouseWheel="GridCropperContainer_MouseWheel"
+                                                  MouseDown="GridCropperContainer_MouseDown"
+                                                  MouseMove="GridCropperContainer_MouseMove"
+                                                  MouseUp="GridCropperContainer_MouseUp"
+                                                  Cursor="Hand">
+                                                
+                                                <!-- The full uploaded portrait with RenderTransform group -->
+                                                <Image x:Name="ImgOriginal" HorizontalAlignment="Center" VerticalAlignment="Center" SizeChanged="ImgOriginal_SizeChanged" Stretch="Uniform" StretchDirection="Both">
+                                                    <Image.RenderTransform>
+                                                        <TransformGroup>
+                                                            <ScaleTransform x:Name="ImgScale" ScaleX="1" ScaleY="1" />
+                                                            <TranslateTransform x:Name="ImgTranslate" X="0" Y="0" />
+                                                        </TransformGroup>
+                                                    </Image.RenderTransform>
+                                                </Image>
+                                                
+                                                <!-- Draggable/Resizable Canvas Overlay (Remains static while image pans/zooms) -->
+                                                <Canvas x:Name="CanvasCropOverlay" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                    
+                                                    <!-- Draggable / Resizable selector panel with 4 corner resize handles -->
+                                                    <Grid x:Name="RectCropSelector" Width="100" Height="130" Background="#256366F1" Cursor="SizeAll"
+                                                          MouseLeftButtonDown="RectCropSelector_MouseDown"
+                                                          MouseMove="RectCropSelector_MouseMove"
+                                                          MouseLeftButtonUp="RectCropSelector_MouseUp">
+                                                        <Border BorderBrush="#6366F1" BorderThickness="2" IsHitTestVisible="False"/>
+
+                                                        <!-- Corner handles -->
+                                                        <!-- Top Left -->
+                                                        <Border Width="10" Height="10" Background="White" BorderBrush="#6366F1" BorderThickness="1.5" CornerRadius="5"
+                                                                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-5,-5,0,0" Cursor="SizeNWSE"
+                                                                MouseLeftButtonDown="Handle_MouseDown" MouseMove="Handle_MouseMove" MouseLeftButtonUp="Handle_MouseUp" Tag="TL"/>
+                                                        <!-- Top Right -->
+                                                        <Border Width="10" Height="10" Background="White" BorderBrush="#6366F1" BorderThickness="1.5" CornerRadius="5"
+                                                                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-5,0" Cursor="SizeNESW"
+                                                                MouseLeftButtonDown="Handle_MouseDown" MouseMove="Handle_MouseMove" MouseLeftButtonUp="Handle_MouseUp" Tag="TR"/>
+                                                        <!-- Bottom Left -->
+                                                        <Border Width="10" Height="10" Background="White" BorderBrush="#6366F1" BorderThickness="1.5" CornerRadius="5"
+                                                                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-5,0,0,-5" Cursor="SizeNESW"
+                                                                MouseLeftButtonDown="Handle_MouseDown" MouseMove="Handle_MouseMove" MouseLeftButtonUp="Handle_MouseUp" Tag="BL"/>
+                                                        <!-- Bottom Right -->
+                                                        <Border Width="10" Height="10" Background="White" BorderBrush="#6366F1" BorderThickness="1.5" CornerRadius="5"
+                                                                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-5,-5" Cursor="SizeNWSE"
+                                                                MouseLeftButtonDown="Handle_MouseDown" MouseMove="Handle_MouseMove" MouseLeftButtonUp="Handle_MouseUp" Tag="BR"/>
+                                                    </Grid>
+                                                </Canvas>
+                                                
+                                                <TextBlock x:Name="TxtCropperPlaceholder" Text="Select an image to start. Scroll to Zoom, Right-Click Drag to Pan." Foreground="#94A3B8" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Right side: Cropped portrait preview -->
+                                        <Grid Grid.Column="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="Cropped Live Preview" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,10"/>
+                                            <Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="240" MaxHeight="300">
+                                                <Grid x:Name="GridCroppedResultBg" Background="White">
+                                                    <Image x:Name="ImgCroppedResult" Stretch="Uniform" StretchDirection="Both" SnapsToDevicePixels="True"/>
+                                                    <TextBlock x:Name="TxtCropResultPlaceholder" Text="Portrait Preview" Foreground="#94A3B8" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <!-- Lightweight Progress Ring -->
+                                                    <Grid x:Name="PnlProgressRing" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Width="30" Height="30">
+                                                        <Ellipse Stroke="#E2E8F0" StrokeThickness="3" Width="30" Height="30"/>
+                                                        <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="3" StrokeDashArray="3 1" Width="30" Height="30" RenderTransformOrigin="0.5,0.5">
+                                                            <Ellipse.RenderTransform>
+                                                                <RotateTransform x:Name="RotTransform" Angle="0"/>
+                                                            </Ellipse.RenderTransform>
+                                                            <Ellipse.Triggers>
+                                                                <EventTrigger RoutedEvent="Loaded">
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation Storyboard.TargetName="RotTransform" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </EventTrigger>
+                                                            </Ellipse.Triggers>
+                                                        </Ellipse>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </Grid>
+                                </TabItem>
+
+                                <!-- Tab 2: Print Grid Sheet -->
+                                <TabItem Header="Print Grid Sheet" Style="{StaticResource UnderlineTabItem}">
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <Border Grid.Row="0" Background="#0A000000" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="4" Padding="10">
+                                            <Grid Background="#0F172A">
+                                                <Image x:Name="ImgSheetResult" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="450"/>
+                                                <TextBlock x:Name="TxtSheetPlaceholder" Text="Grid sheet will be displayed here" Foreground="#94A3B8" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        
+                                        <TextBlock Grid.Row="1" Text="Tip: Increase/Decrease copies or page size in the settings card on the left. The grid adjusts dynamically." Foreground="{DynamicResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,10,0,0" />
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                        </Border>
+                    </Grid>
+
+                    <!-- Bottom Action Bar -->
+                    <Border Grid.Row="2" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Content="Back to Home" Click="BtnNavHome_Click" Style="{StaticResource MutedButton}"/>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <Button x:Name="BtnSavePhoto" Content="Save Photo" Click="BtnSavePhoto_Click" Style="{StaticResource SuccessButton}" Width="110"/>
+                                <Button x:Name="BtnSaveSheet" Content="Save Sheet" Margin="10,0,0,0" Click="BtnSaveSheet_Click" Style="{StaticResource SuccessButton}" Width="110"/>
+                                <Button x:Name="BtnPrintSheet" Content="Print Sheet" Margin="10,0,0,0" Click="BtnPrintSheet_Click" Style="{StaticResource InfoButton}" Width="110"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- 3. PDF Utility Panel (tabbed overhaul housing all 12 tools) -->
+                <Grid x:Name="PanelPdf" Visibility="Collapsed" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.Resources>
+                        <Style x:Key="PdfTabControl" TargetType="TabControl" BasedOn="{StaticResource ModernTabControl}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabControl">
+                                        <Grid KeyboardNavigation.TabNavigation="Local" ClipToBounds="true" SnapsToDevicePixels="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Tool List Panel (TabPanel) -->
+                                            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <TabPanel x:Name="HeaderPanel" IsItemsHost="true" KeyboardNavigation.TabIndex="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                            </ScrollViewer>
+                                            
+                                            <!-- Selected Tool Action Panel & Preview Panel -->
+                                            <Border Grid.Column="1"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch">
+                                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                                  ContentSource="SelectedContent"
+                                                                  HorizontalAlignment="Stretch"
+                                                                  VerticalAlignment="Stretch"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="Document Assembler &amp; Suite" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" FontWeight="SemiBold"/>
+                        <TextBlock Text="PDF Utility Suite" Foreground="{DynamicResource TextBrush}" FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <!-- Tabbed left vertical navigation hosting 12 tools -->
+                    <TabControl Grid.Row="1" TabStripPlacement="Left" Style="{StaticResource PdfTabControl}" SelectionChanged="PdfToolsTabControl_SelectionChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        
+                        <!-- 1. PDF to Image Converter -->
+                        <TabItem Header="1. PDF to Image" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="PDF to Image" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnPdfToImgBrowse" Content="Select PDF File" Click="BtnPdfToImgBrowse_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <TextBlock x:Name="LblPdfToImgFile" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnPdfToImgSaveAll" Content="Export All Pages" Click="BtnPdfToImgSaveAll_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpPdfToImgPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpPdfToImgPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 2. Image to PDF Converter -->
+                        <TabItem Header="2. Image to PDF" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Image to PDF" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnImgToPdfAdd" Content="Add Image Files" Click="BtnImgToPdfAdd_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <Button x:Name="BtnImgToPdfClear" Content="Clear All Images" Click="BtnImgToPdfClear_Click" Style="{StaticResource MutedButton}" Margin="0,5,0,5"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnImgToPdfCompile" Content="Compile &amp; Save PDF" Click="BtnImgToPdfCompile_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpImgToPdfPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpImgToPdfPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 3. Password Protect PDF -->
+                        <TabItem Header="3. Protect PDF" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Password Protect" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Target PDF File" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtProtectPdfPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="11"/>
+                                            <Button Grid.Column="2" Content="Browse" Click="BtnProtectPdfBrowse_Click" Style="{StaticResource ModernButton}" Padding="8,4"/>
+                                        </Grid>
+
+                                        <TextBlock Text="Set Password" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="TxtProtectPassword" Style="{StaticResource ModernTextBox}" Margin="0,0,0,25" VerticalContentAlignment="Center" FontSize="11"/>
+
+                                        <Button Content="Encrypt &amp; Save PDF" Click="BtnProtectPdfApply_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpProtectPdfPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpProtectPdfPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 4. Unlock PDF Password -->
+                        <TabItem Header="4. Unlock PDF" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Decrypt / Unlock PDF" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Locked PDF File" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtUnlockPdfPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="11"/>
+                                            <Button Grid.Column="2" Content="Browse" Click="BtnUnlockPdfBrowse_Click" Style="{StaticResource ModernButton}" Padding="8,4"/>
+                                        </Grid>
+
+                                        <TextBlock Text="Enter Document Password" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="TxtUnlockPassword" Style="{StaticResource ModernTextBox}" Margin="0,0,0,25" VerticalContentAlignment="Center" FontSize="11"/>
+
+                                        <Button Content="Decrypt &amp; Save PDF" Click="BtnUnlockPdfApply_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpUnlockPdfPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpUnlockPdfPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 5. Rearrange Pages with Preview -->
+                        <TabItem Header="5. Rearrange Pages" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Rearrange Pages" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnRearrangeBrowse" Content="Select PDF File" Click="BtnRearrangeBrowse_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <TextBlock x:Name="LblRearrangeFile" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnRearrangeSave" Content="Save Rearranged PDF" Click="BtnRearrangeSave_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpRearrangePreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpRearrangePreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 6. Merge PDFs -->
+                        <TabItem Header="6. Merge PDFs" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Left Column Control Panel -->
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="Arranged PDF Documents" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <Grid Grid.Row="1" Margin="0,0,0,10">
+                                            <ListBox x:Name="LstPdfFiles" AllowDrop="True" 
+                                                     DragEnter="LstPdfFiles_DragEnter" DragOver="LstPdfFiles_DragOver" Drop="LstPdfFiles_Drop"
+                                                     Background="#0F172A" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Foreground="#FFFFFF" FontWeight="SemiBold" Padding="5">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="2">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Image Grid.Column="0" Source="assets/pdf_icon.png" Width="12" Height="12" Margin="0,0,6,0"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding}" Foreground="#FFFFFF" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            <TextBlock x:Name="TxtPdfPlaceholder" Text="Drag &amp; Drop PDF Files Here" Foreground="#E0E0E0" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" TextWrapping="Wrap" Margin="10"/>
+                                        </Grid>
+                                        
+                                        <!-- Actions -->
+                                        <Grid Grid.Row="2" Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Button Content="Add PDFs" Click="BtnAddPdfs_Click" Style="{StaticResource AccentButton}" Margin="0,2,2,2"/>
+                                            <Button Grid.Column="1" Content="Clear All" Click="BtnClearPdfs_Click" Style="{StaticResource ModernButton}" Margin="2,2,0,2"/>
+                                            <Button Grid.Row="1" Content="Move Up" Click="BtnMovePdfUp_Click" Style="{StaticResource ModernButton}" Margin="0,2,2,0"/>
+                                            <Button Grid.Row="1" Grid.Column="1" Content="Move Down" Click="BtnMovePdfDown_Click" Style="{StaticResource ModernButton}" Margin="2,2,0,0"/>
+                                        </Grid>
+                                        
+                                        <!-- Primary Save button -->
+                                        <Button Grid.Row="3" Content="Merge and Save PDF" Click="BtnMergePdfs_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
+                                
+                                <!-- Right Panel Preview Workspace -->
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpMergePreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpMergePreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 7. Split PDF with Preview -->
+                        <TabItem Header="7. Split PDF" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Split PDF Pages" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnSplitVisualBrowse" Content="Select PDF File" Click="BtnSplitVisualBrowse_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <TextBlock x:Name="LblSplitVisualFile" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnSplitVisualSave" Content="Save Split Pages" Click="BtnSplitVisualSave_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpSplitVisualPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpSplitVisualPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 8. Add Page Numbers -->
+                        <TabItem Header="8. Page Numbers" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Add Page Numbers" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Target PDF File" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtPageNumPdfPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="11"/>
+                                            <Button Grid.Column="2" Content="Browse" Click="BtnPageNumPdfBrowse_Click" Style="{StaticResource ModernButton}" Padding="8,4"/>
+                                        </Grid>
+
+                                        <TextBlock Text="Page Number Position" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="CmbPageNumPosition" Style="{StaticResource ModernComboBox}" Margin="0,0,0,25" HorizontalAlignment="Stretch">
+                                            <ComboBoxItem Content="Bottom Center" IsSelected="True" />
+                                            <ComboBoxItem Content="Bottom Left" />
+                                            <ComboBoxItem Content="Bottom Right" />
+                                        </ComboBox>
+
+                                        <Button Content="Stamp Numbers &amp; Save" Click="BtnPageNumApply_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpPageNumPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpPageNumPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 9. Add/Delete Page with Preview -->
+                        <TabItem Header="9. Add/Delete Page" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Add / Delete Pages" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnAddDeleteBrowse" Content="Select PDF File" Click="BtnAddDeleteBrowse_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <TextBlock x:Name="LblAddDeleteFile" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnAddDeleteBlank" Content="Append Blank Page" Click="BtnAddDeleteBlank_Click" Style="{StaticResource ModernButton}" Margin="0,5,0,5"/>
+                                        <Button x:Name="BtnAddDeleteSave" Content="Save Final Changes" Click="BtnAddDeleteSave_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpAddDeletePreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpAddDeletePreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 10. Word to PDF Converter -->
+                        <TabItem Header="10. Word to PDF" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Word to PDF (.docx)" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Select Word Document" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,25">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtDocxPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="11"/>
+                                            <Button Grid.Column="2" Content="Browse" Click="BtnDocxBrowse_Click" Style="{StaticResource ModernButton}" Padding="8,4"/>
+                                        </Grid>
+
+                                        <Button Content="Convert &amp; Save PDF" Click="BtnDocxToPdfApply_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpDocxToPdfPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpDocxToPdfPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 11. PDF to Word Converter -->
+                        <TabItem Header="11. PDF to Word" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="PDF to Word (.docx)" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        
+                                        <TextBlock Text="Select PDF Document" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,25">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtWordPdfPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="11"/>
+                                            <Button Grid.Column="2" Content="Browse" Click="BtnWordPdfBrowse_Click" Style="{StaticResource ModernButton}" Padding="8,4"/>
+                                        </Grid>
+
+                                        <Button Content="Convert &amp; Save Word Doc" Click="BtnPdfToWordApply_Click" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpPdfToWordPreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpPdfToWordPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- 12. Rotate Pages with Preview -->
+                        <TabItem Header="12. Rotate Pages" Style="{StaticResource LeftTabItem}">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <StackPanel>
+                                        <TextBlock Text="Rotate Pages Visually" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                        <Button x:Name="BtnRotateBrowse" Content="Select PDF File" Click="BtnRotateBrowse_Click" Style="{StaticResource AccentButton}" Margin="0,5,0,5"/>
+                                        <TextBlock x:Name="LblRotateFile" Text="No file selected" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                        <Separator Margin="0,15" Background="{DynamicResource BorderBrush}"/>
+                                        <Button x:Name="BtnRotateSaveAll" Content="Save Rotated PDF" Click="BtnRotateSaveAll_Click" Style="{StaticResource SuccessButton}" Margin="0,5,0,5"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="Auto" Height="Auto">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <!-- Empty State Placeholder -->
+                                            <StackPanel x:Name="WpRotatePreviewsPlaceholder" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                                                <TextBlock Text="📁" FontSize="36" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                                <TextBlock Text="No Document Loaded" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                                                <TextBlock Text="Drag &amp; Drop PDF files or use the left panel to begin." FontSize="11" Foreground="{DynamicResource MutedTextBrush}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <WrapPanel x:Name="WpRotatePreviews" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Top" ItemWidth="160" ItemHeight="230"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                    <!-- Bottom Back to Home Button -->
+                    <Border Grid.Row="2" Margin="0,15,0,0" Padding="0">
+                        <Button Content="Back to Home" Click="BtnNavHome_Click" Style="{StaticResource MutedButton}" HorizontalAlignment="Left"/>
+                    </Border>
+                </Grid>
+
+                <!-- 4. Advanced Compressor Panel (Dual Mode Image & PDF) -->
+                <Grid x:Name="PanelCompress" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="Advanced Dual Media Compression" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" FontWeight="SemiBold"/>
+                        <TextBlock Text="Universal Compressor" Foreground="{DynamicResource TextBrush}" FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <!-- Tabs to switch between Image and PDF compressor -->
+                    <TabControl Grid.Row="1" Style="{StaticResource ModernTabControl}" SelectionChanged="CompressorTabControl_SelectionChanged">
+                        
+                        <!-- Image Compressor Mode -->
+                        <TabItem Header="[Image Compressor]" Style="{StaticResource UnderlineTabItem}">
+                            <Grid Margin="0,15,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Grid Grid.Row="0" Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Original Viewer -->
+                                    <Border Grid.Column="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <Grid AllowDrop="True" DragEnter="GridCompressDrop_DragEnter" DragOver="GridCompressDrop_DragOver" Drop="GridCompressDrop_Drop">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="Original Image Input" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                            <Grid Grid.Row="1" Background="#0F172A" Margin="0,0,0,10">
+                                                <Image x:Name="ImgCompressOriginal" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="TxtCompressOriginalPlaceholder" Text="Drag &amp; Drop Image Here or Click 'Browse'" Foreground="#94A3B8" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="LblCompressOriginalSize" Grid.Column="0" Text="Original Size: -- KB" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="Browse Image" Click="BtnCompressBrowse_Click" Style="{StaticResource ModernButton}"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Compressed Preview -->
+                                    <Border Grid.Column="2" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="Optimized Compressed Output" Foreground="{DynamicResource TextBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                                            <Grid Grid.Row="1" Background="#0F172A" Margin="0,0,0,10">
+                                                <Image x:Name="ImgCompressResult" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="TxtCompressResultPlaceholder" Text="Compressed preview will display here" Foreground="#94A3B8" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock x:Name="LblCompressResultSize" Grid.Row="2" Text="Estimated Size: -- KB" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Image compression controls -->
+                                <Border Grid.Row="1" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="20" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Quality Slider -->
+                                        <Grid Grid.Column="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="5" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="Compression Quality Level" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock x:Name="LblCompressQuality" Grid.Column="2" Text="75%" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Slider x:Name="SldCompressQuality" Grid.Row="2" Minimum="1" Maximum="100" Value="75" IsSnapToTickEnabled="True" TickFrequency="1" ValueChanged="SldCompressQuality_ValueChanged"/>
+                                        </Grid>
+
+                                        <!-- Target Size constraint -->
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Target Size (KB)" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="TxtCompressTargetSize" Style="{StaticResource ModernTextBox}" Height="32" VerticalContentAlignment="Center" ToolTip="If set, quality is calculated automatically to respect this size limits."/>
+                                        </StackPanel>
+
+                                        <!-- Actions -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="Compress" Click="BtnCompressApply_Click" Style="{StaticResource AccentButton}" Width="120"/>
+                                            <Button Content="Save Output Image" Margin="10,0,0,0" Click="BtnCompressSave_Click" Style="{StaticResource SuccessButton}" Width="150"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- PDF Compressor Mode -->
+                        <TabItem Header="[PDF Compressor]" Style="{StaticResource UnderlineTabItem}">
+                            <Grid Margin="0,15,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- PDF info grid -->
+                                <Border Grid.Row="0" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="25">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="30"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="15"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="PDF Document Size Optimizer" Foreground="{DynamicResource TextBrush}" FontSize="16" FontWeight="Bold"/>
+                                        
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="15"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="TxtCompressPdfPath" Style="{StaticResource ModernTextBox}" IsReadOnly="True" VerticalContentAlignment="Center" Text="Select Target PDF File to Compress..."/>
+                                            <Button Grid.Column="2" Content="Browse PDF" Click="BtnCompressPdfBrowse_Click" Style="{StaticResource ModernButton}"/>
+                                        </Grid>
+
+                                        <StackPanel Grid.Row="4" Orientation="Horizontal">
+                                            <TextBlock x:Name="LblCompressPdfOriginalSize" Text="Original Size: -- KB" Foreground="{DynamicResource MutedTextBrush}" FontSize="13" Margin="0,0,40,0"/>
+                                            <TextBlock x:Name="LblCompressPdfResultSize" Text="Estimated Optimized Size: -- KB" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" FontSize="13"/>
+                                        </StackPanel>
+                                        
+                                        <!-- Thumbnail WrapPanel to preview PDF pages -->
+                                        <Border Grid.Row="5" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="4" Background="#0F172A" Margin="0,15,0,0" Padding="10">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                                <WrapPanel x:Name="WpCompressPdfPreviews" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- PDF Compressor settings footer -->
+                                <Border Grid.Row="1" Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15" Margin="0,15,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="20" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Quality Slider -->
+                                        <Grid Grid.Column="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="5" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="Optimization Level (DPI/Quality)" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock x:Name="LblCompressPdfQuality" Grid.Column="2" Text="75%" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Slider x:Name="SldCompressPdfQuality" Grid.Row="2" Minimum="1" Maximum="100" Value="75" IsSnapToTickEnabled="True" TickFrequency="1" ValueChanged="SldCompressPdfQuality_ValueChanged"/>
+                                        </Grid>
+
+                                        <!-- Target Size constraint -->
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Target Size (KB)" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="TxtCompressPdfTargetSize" Style="{StaticResource ModernTextBox}" Height="32" VerticalContentAlignment="Center" ToolTip="If set, recalculates density to stay strictly below target size."/>
+                                        </StackPanel>
+
+                                        <!-- Actions -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="Optimize PDF" Click="BtnCompressPdfApply_Click" Style="{StaticResource AccentButton}" Width="120"/>
+                                            <Button Content="Save Compressed PDF" Margin="10,0,0,0" Click="BtnCompressPdfSave_Click" Style="{StaticResource SuccessButton}" Width="160"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                    <!-- Bottom Back to Home Button -->
+                    <Border Grid.Row="2" Margin="0,15,0,0" Padding="0">
+                        <Button Content="Back to Home" Click="BtnNavHome_Click" Style="{StaticResource MutedButton}" HorizontalAlignment="Left"/>
+                    </Border>
+                </Grid>
+
+                <!-- 5. Settings Panel -->
+                <Grid x:Name="PanelSettings" Visibility="Collapsed">
+                    <Grid.Resources>
+                        <Style x:Key="SettingsTabControl" TargetType="TabControl" BasedOn="{StaticResource ModernTabControl}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabControl">
+                                        <Grid KeyboardNavigation.TabNavigation="Local" ClipToBounds="true" SnapsToDevicePixels="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Settings Tabs List -->
+                                            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <TabPanel x:Name="HeaderPanel" IsItemsHost="true" KeyboardNavigation.TabIndex="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                            </ScrollViewer>
+                                            
+                                            <!-- Selected Settings View -->
+                                            <Border Grid.Column="1" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,0,0">
+                                                <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Grid.Resources>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="Application System Options" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Settings Control Panel" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource TitleFontSize}" FontWeight="Bold"/>
+                    </StackPanel>
+
+                    <!-- Settings Tabbed View -->
+                    <TabControl x:Name="TcSettings" Grid.Row="1" TabStripPlacement="Left" Style="{StaticResource SettingsTabControl}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <TabControl.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="Margin" Value="0,0,0,15"/>
+                            </Style>
+                        </TabControl.Resources>
+                        
+                        <!-- TAB 1: APPEARANCE -->
+                        <TabItem Header="1. Appearance" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Theme Mode" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Configure the visual theme of the application." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <ComboBox x:Name="CmbSettingsTheme" SelectionChanged="CmbSettingsTheme_SelectionChanged" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem Content="Dark" />
+                                                <ComboBoxItem Content="Light" />
+                                                <ComboBoxItem Content="System" />
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Accent Color" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Choose a primary accent color used across highlighting and action items." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <ComboBox x:Name="CmbSettingsAccent" SelectionChanged="CmbSettingsAccent_SelectionChanged" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem Content="Purple" />
+                                                <ComboBoxItem Content="Blue" />
+                                                <ComboBoxItem Content="Green" />
+                                                <ComboBoxItem Content="Orange" />
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="User Interface Sizing Modes" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Enable Compact or Large sizing to scale control spacing." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <CheckBox x:Name="ChkSettingsCompact" Content="Compact Mode (Tight Spacing)" Checked="ChkSettingsCompact_Checked" Unchecked="ChkSettingsCompact_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsLargeUi" Content="Large UI Mode (Expanded Spacing)" Checked="ChkSettingsLargeUi_Checked" Unchecked="ChkSettingsLargeUi_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Base Font Size" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Set global base scaling for interface text." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="50"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Slider x:Name="SldSettingsFontSize" Minimum="10" Maximum="20" Value="13" ValueChanged="SldSettingsFontSize_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="LblSettingsFontSizeVal" Grid.Column="1" Text="13 pt" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" FontSize="{DynamicResource BodyFontSize}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Window Size &amp; Tool Restore" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <CheckBox x:Name="ChkSettingsRememberWinSize" Content="Remember Window Position &amp; Size" Checked="ChkSettingsRememberWinSize_Checked" Unchecked="ChkSettingsRememberWinSize_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsRememberLastTool" Content="Remember Last Opened Tool" Checked="ChkSettingsRememberLastTool_Checked" Unchecked="ChkSettingsRememberLastTool_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- TAB 2: PDF SUITE -->
+                        <TabItem Header="2. PDF Suite Settings" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Default Image Export Format" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Default format when rendering pages of PDF files as image files." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <ComboBox x:Name="CmbSettingsPdfFormat" SelectionChanged="CmbSettingsPdfFormat_SelectionChanged" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem Content="PNG" />
+                                                <ComboBoxItem Content="JPG" />
+                                                <ComboBoxItem Content="WEBP" />
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Default PDF Compression Parameters" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Configure default compression quality and target size constraint." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Quality Level" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="50"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Slider x:Name="SldSettingsPdfQuality" Minimum="10" Maximum="100" Value="75" ValueChanged="SldSettingsPdfQuality_ValueChanged" TickFrequency="5" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="LblSettingsPdfQualityVal" Grid.Column="1" Text="75%" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" FontSize="{DynamicResource BodyFontSize}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock Text="Target Max Size Constraint (KB) - Leave empty for none" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtSettingsPdfTargetSize" TextChanged="TxtSettingsPdfTargetSize_TextChanged" Style="{StaticResource ModernTextBox}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="PDF Default Save Folder" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Save directory specifically for PDF Suite tools (overrides global output)." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox x:Name="TxtSettingsPdfSaveFolder" TextChanged="TxtSettingsPdfSaveFolder_TextChanged" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
+                                                <Button x:Name="BtnSettingsPdfSaveFolderBrowse" Grid.Column="2" Content="Browse..." Click="BtnSettingsPdfSaveFolderBrowse_Click" Style="{StaticResource ModernButton}"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="PDF Tool Behaviors" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <CheckBox x:Name="ChkSettingsPdfAutoOpen" Content="Auto Open PDF Output Document After Export" Checked="ChkSettingsPdfAutoOpen_Checked" Unchecked="ChkSettingsPdfAutoOpen_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsPdfAskOverwrite" Content="Confirm Before Overwriting PDF Files" Checked="ChkSettingsPdfAskOverwrite_Checked" Unchecked="ChkSettingsPdfAskOverwrite_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsPdfRememberPwd" Content="Remember Last Encryption/Decryption Password" Checked="ChkSettingsPdfRememberPwd_Checked" Unchecked="ChkSettingsPdfRememberPwd_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- TAB 3: PASSPIX -->
+                        <TabItem Header="3. PassPix Settings" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Default Passport Dimensions" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Pre-select default passport photo dimensions on launch." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <ComboBox x:Name="CmbSettingsPasspixSize" SelectionChanged="CmbSettingsPasspixSize_SelectionChanged" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem Content="1.19x1.53 (US Standard)"/>
+                                                <ComboBoxItem Content="1.38x1.77 (EU Standard)"/>
+                                                <ComboBoxItem Content="2.00x2.00 (IN Standard)"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Default Background &amp; Paper Defaults" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Select default parameters for layout and print sheets." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Background Color Option" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <ComboBox x:Name="CmbSettingsPasspixBg" SelectionChanged="CmbSettingsPasspixBg_SelectionChanged" Style="{StaticResource ModernComboBox}" Margin="0,0,0,10">
+                                                <ComboBoxItem Content="white" />
+                                                <ComboBoxItem Content="transparent" />
+                                                <ComboBoxItem Content="blue" />
+                                                <ComboBoxItem Content="red" />
+                                                <ComboBoxItem Content="light blue" />
+                                            </ComboBox>
+                                            <TextBlock Text="Grid Print Sheet Size" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <ComboBox x:Name="CmbSettingsPasspixPaper" SelectionChanged="CmbSettingsPasspixPaper_SelectionChanged" Style="{StaticResource ModernComboBox}" Margin="0,0,0,10">
+                                                <ComboBoxItem Content="4x6"/>
+                                                <ComboBoxItem Content="5x7" />
+                                                <ComboBoxItem Content="A4" />
+                                            </ComboBox>
+                                            <TextBlock Text="Default Copy Layout Quantity" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtSettingsPasspixCopies" TextChanged="TxtSettingsPasspixCopies_TextChanged" Style="{StaticResource ModernTextBox}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Auto Processing Settings" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Enable options to execute automatically when opening or loading photos." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <CheckBox x:Name="ChkSettingsPasspixAutoRemoveBg" Content="Auto Remove Background on Load" Checked="ChkSettingsPasspixAutoRemoveBg_Checked" Unchecked="ChkSettingsPasspixAutoRemoveBg_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsPasspixAutoFaceEnhance" Content="Auto Apply Face Enhancement (Contrast &amp; Blur)" Checked="ChkSettingsPasspixAutoFaceEnhance_Checked" Unchecked="ChkSettingsPasspixAutoFaceEnhance_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsPasspixAutoFaceCrop" Content="Auto Detect Face Bounding Box &amp; Center Crop" Checked="ChkSettingsPasspixAutoFaceCrop_Checked" Unchecked="ChkSettingsPasspixAutoFaceCrop_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- TAB 4: FILE & SAVE -->
+                        <TabItem Header="4. File &amp; Save Options" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Global Default Output Folder" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="All saved operations will export here by default (Passpix, Compressor, etc.)." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="10"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox x:Name="TxtSettingsDefaultFolder" TextChanged="TxtSettingsDefaultFolder_TextChanged" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
+                                                <Button x:Name="BtnSettingsDefaultFolderBrowse" Grid.Column="2" Content="Browse..." Click="BtnSettingsDefaultFolderBrowse_Click" Style="{StaticResource ModernButton}"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Global Folder &amp; Overwrite Behaviors" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <CheckBox x:Name="ChkSettingsAutoCreateFolder" Content="Auto Create Output Folder if Missing" Checked="ChkSettingsAutoCreateFolder_Checked" Unchecked="ChkSettingsAutoCreateFolder_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsAutoOpenSaved" Content="Auto Open Document/Image File After Saving" Checked="ChkSettingsAutoOpenSaved_Checked" Unchecked="ChkSettingsAutoOpenSaved_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsAskBeforeReplace" Content="Confirm Before Replacing Existing Files" Checked="ChkSettingsAskBeforeReplace_Checked" Unchecked="ChkSettingsAskBeforeReplace_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsDateFolders" Content="Create Subfolders Grouped by Current Date" Checked="ChkSettingsDateFolders_Checked" Unchecked="ChkSettingsDateFolders_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- TAB 5: PERFORMANCE & CACHE -->
+                        <TabItem Header="5. Performance Settings" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Thumbnail File Cache" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Set maximum number of cached page thumbnails in app directory to speed up reloading." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <TextBox x:Name="TxtSettingsCacheSize" TextChanged="TxtSettingsCacheSize_TextChanged" Style="{StaticResource ModernTextBox}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="PDF Page Preview Quality" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Adjust target width/height resolution for generating PDF page previews." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <ComboBox x:Name="CmbSettingsPreviewQuality" SelectionChanged="CmbSettingsPreviewQuality_SelectionChanged" Style="{StaticResource ModernComboBox}">
+                                                <ComboBoxItem Content="High" />
+                                                <ComboBoxItem Content="Medium" />
+                                                <ComboBoxItem Content="Low" />
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Hardware &amp; Execution Accelerators" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                            <CheckBox x:Name="ChkSettingsHardwareAccel" Content="Enable Hardware Rendering Acceleration (Requires Restart)" Checked="ChkSettingsHardwareAccel_Checked" Unchecked="ChkSettingsHardwareAccel_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <CheckBox x:Name="ChkSettingsMultiThread" Content="Enable Multi-Thread Processing for Batch Utilities" Checked="ChkSettingsMultiThread_Checked" Unchecked="ChkSettingsMultiThread_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Recent Files List Options" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,3"/>
+                                            <TextBlock Text="Enable recent files history tracking on home dashboard." Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                                            <CheckBox x:Name="ChkSettingsRecentEnabled" Content="Enable Recent Files History Tracker" Checked="ChkSettingsRecentEnabled_Checked" Unchecked="ChkSettingsRecentEnabled_Unchecked" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                            <TextBlock Text="History Limit Count" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}" Margin="0,0,0,3"/>
+                                            <TextBox x:Name="TxtSettingsRecentLimit" TextChanged="TxtSettingsRecentLimit_TextChanged" Style="{StaticResource ModernTextBox}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- TAB 6: ABOUT & MAINTENANCE -->
+                        <TabItem Header="6. Maintenance &amp; About" Style="{StaticResource LeftTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel Margin="10,0,10,0">
+                                    
+                                    <!-- SYSTEM DIAGNOSTIC PANEL -->
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="10"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="10"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <TextBlock Grid.Row="0" Text="System Diagnostics &amp; Info" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold"/>
+                                            
+                                            <StackPanel Grid.Row="2">
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBlock Text="App Version:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutVersion" Text="1.1.0" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="{DynamicResource BodyFontSize}"/>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBlock Text="Developer:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutDeveloper" Text="lkbunkar" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="{DynamicResource BodyFontSize}"/>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBlock Text="Build Architecture Type:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutBuildType" Text="Release" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="{DynamicResource BodyFontSize}"/>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBlock Text="Active .NET Framework Runtime:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutNetVersion" Text="[Runtime]" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="{DynamicResource BodyFontSize}"/>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,6">
+                                                    <TextBlock Text="AI ONNX Session Status:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutOnnxStatus" Text="Session Inactive" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="{DynamicResource BodyFontSize}"/>
+                                                </Grid>
+                                                <StackPanel Margin="0,6,0,0">
+                                                    <TextBlock Text="Base Executable Directory Path:" Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource MutedFontSize}"/>
+                                                    <TextBlock x:Name="LblAboutBaseDir" Text="[Base Directory]" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource MutedFontSize}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <Button Grid.Row="4" x:Name="BtnAboutCheckUpdates" Content="Check For Updates" Click="BtnAboutCheckUpdates_Click" Style="{StaticResource InfoButton}" HorizontalAlignment="Left" Padding="12,6"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- BACKUP & RESTORE -->
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Backup &amp; Restore Configuration" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <WrapPanel Orientation="Horizontal" ItemWidth="140" ItemHeight="40">
+                                                <Button x:Name="BtnSettingsExport" Content="Export Settings..." Click="BtnSettingsExport_Click" Style="{StaticResource ModernButton}" Margin="0,0,10,0" Width="130"/>
+                                                <Button x:Name="BtnSettingsImport" Content="Import Settings..." Click="BtnSettingsImport_Click" Style="{StaticResource ModernButton}" Margin="0,0,10,0" Width="130"/>
+                                                <Button x:Name="BtnSettingsReset" Content="Reset Settings" Click="BtnSettingsReset_Click" Style="{StaticResource MutedButton}" Width="130"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- CACHE & SYSTEM MAINTENANCE -->
+                                    <Border Background="{DynamicResource CardBgBrush}" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="8" Padding="15">
+                                        <StackPanel>
+                                            <TextBlock Text="Cache &amp; Storage Maintenance" Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadingFontSize}" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <WrapPanel Orientation="Horizontal" ItemWidth="140" ItemHeight="40">
+                                                <Button x:Name="BtnSettingsClearCache" Content="Clear Cache" Click="BtnSettingsClearCache_Click" Style="{StaticResource MutedButton}" Margin="0,0,10,0" Width="130"/>
+                                                <Button x:Name="BtnSettingsClearRecent" Content="Clear Recent Files" Click="BtnSettingsClearRecent_Click" Style="{StaticResource MutedButton}" Margin="0,0,10,0" Width="130"/>
+                                                <Button x:Name="BtnSettingsOpenLogs" Content="Open Logs Folder" Click="BtnSettingsOpenLogs_Click" Style="{StaticResource ModernButton}" Width="130"/>
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                    
+                    <!-- Bottom Back to Home Button -->
+                    <Border Grid.Row="2" Margin="0,15,0,0" Padding="0">
+                        <Button Content="Back to Home" Click="BtnNavHome_Click" Style="{StaticResource MutedButton}" HorizontalAlignment="Left"/>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Footer Bar strictly displaying "Developer: lkbunkar" (bottom right) -->
+        <Border Grid.Row="1" Background="{DynamicResource SidebarBgBrush}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}" Padding="15,6">
+            <Grid>
+                <TextBlock Text="Simple Editor Suite v1.1.0" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Text="Developer: lkbunkar" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

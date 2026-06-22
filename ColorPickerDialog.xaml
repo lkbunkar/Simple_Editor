@@ -1,0 +1,170 @@
+<Window x:Class="Passpix.ColorPickerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Choose Color" Height="450" Width="700" MinHeight="450" MinWidth="700"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        ResizeMode="CanResize"
+        SizeToContent="Manual"
+        Background="{DynamicResource WindowBgBrush}"
+        FontFamily="{DynamicResource PrimaryFont}"
+        FontSize="{DynamicResource BodyFontSize}">
+    
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Main Picker Controls -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="256" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Column 0: 2D Saturation / Value Selection Square -->
+            <Border Grid.Column="0" Width="256" Height="256" CornerRadius="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" VerticalAlignment="Center">
+                <Grid x:Name="SatValGrid" MouseDown="SatValSquare_MouseDown" MouseMove="SatValSquare_MouseMove" MouseUp="SatValSquare_MouseUp" Background="Transparent" Cursor="Cross">
+                    <!-- Layer 1: Base Hue Color Background -->
+                    <Border x:Name="SatValColorBackground" Background="Red" IsHitTestVisible="False" />
+                    
+                    <!-- Layer 2: Horizontal Gradient (White to Transparent) -->
+                    <Border IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                <GradientStop Color="#00FFFFFF" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    
+                    <!-- Layer 3: Vertical Gradient (Transparent to Black) -->
+                    <Border IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#00000000" Offset="0" />
+                                <GradientStop Color="#FF000000" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    
+                    <!-- Layer 4: Interactive Selector Canvas -->
+                    <Canvas x:Name="SatValCanvas" Background="Transparent" IsHitTestVisible="False" ClipToBounds="False">
+                        <Grid x:Name="SatValMarker" Width="12" Height="12" Canvas.Left="0" Canvas.Top="0">
+                            <!-- Crosshair lines -->
+                            <Line X1="6" Y1="-6" X2="6" Y2="18" Stroke="Black" StrokeThickness="1" />
+                            <Line X1="6" Y1="-6" X2="6" Y2="18" Stroke="White" StrokeThickness="1" StrokeDashArray="2,2" />
+                            <Line X1="-6" Y1="6" X2="18" Y2="6" Stroke="Black" StrokeThickness="1" />
+                            <Line X1="-6" Y1="6" X2="18" Y2="6" Stroke="White" StrokeThickness="1" StrokeDashArray="2,2" />
+                            
+                            <!-- Center circle -->
+                            <Ellipse Width="10" Height="10" Stroke="Black" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Ellipse Width="8" Height="8" Stroke="White" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- Column 2: Vertical Hue (Rainbow) Slider Track -->
+            <Border Grid.Column="2" x:Name="HueTrack" Width="20" Height="256" CornerRadius="3" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" VerticalAlignment="Center"
+                    MouseDown="HueTrack_MouseDown" MouseMove="HueTrack_MouseMove" MouseUp="HueTrack_MouseUp" Background="Transparent">
+                <Grid IsHitTestVisible="False">
+                    <!-- Rainbow Gradient Fill -->
+                    <Border CornerRadius="2">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#FF0000" Offset="0.0" />
+                                <GradientStop Color="#FFFF00" Offset="0.167" />
+                                <GradientStop Color="#00FF00" Offset="0.333" />
+                                <GradientStop Color="#00FFFF" Offset="0.5" />
+                                <GradientStop Color="#0000FF" Offset="0.667" />
+                                <GradientStop Color="#FF00FF" Offset="0.833" />
+                                <GradientStop Color="#FF0000" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <!-- Indicators Overlay Canvas -->
+                    <Canvas x:Name="HueCanvas" Background="Transparent" ClipToBounds="False">
+                        <!-- Left indicator pointing right -->
+                        <Polygon x:Name="HueIndicatorLeft" Points="-6,-4 0,0 -6,4" Fill="{DynamicResource TextBrush}" Canvas.Left="0" Canvas.Top="0" />
+                        <!-- Right indicator pointing left -->
+                        <Polygon x:Name="HueIndicatorRight" Points="6,-4 0,0 6,4" Fill="{DynamicResource TextBrush}" Canvas.Left="20" Canvas.Top="0" />
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- Column 4: Controls, Input fields, Previews -->
+            <Grid Grid.Column="4" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Comparison Live Preview Box -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <TextBlock Text="Preview" Foreground="{DynamicResource MutedTextBrush}" FontSize="11" FontWeight="Bold" Margin="0,0,0,4" HorizontalAlignment="Center"/>
+                    <Grid Width="110" Height="64">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <!-- Top Half: New Selected Color -->
+                        <Border x:Name="PreviewNewColor" Grid.Row="0" CornerRadius="4,4,0,0" Background="White" BorderThickness="1,1,1,0" BorderBrush="{DynamicResource BorderBrush}" ToolTip="New Color" />
+                        <!-- Bottom Half: Initial Color -->
+                        <Border x:Name="PreviewCurrentColor" Grid.Row="1" CornerRadius="0,0,4,4" Background="White" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" ToolTip="Current Color" />
+                    </Grid>
+                </StackPanel>
+
+                <!-- RGB and Hex inputs block -->
+                <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Red Input -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="R:" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBox x:Name="TxtRed" Grid.Row="0" Grid.Column="1" TextChanged="TxtRGB_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center" Margin="0,0,0,8"/>
+
+                    <!-- Green Input -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="G:" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBox x:Name="TxtGreen" Grid.Row="1" Grid.Column="1" TextChanged="TxtRGB_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center" Margin="0,0,0,8"/>
+
+                    <!-- Blue Input -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="B:" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <TextBox x:Name="TxtBlue" Grid.Row="2" Grid.Column="1" TextChanged="TxtRGB_TextChanged" Style="{StaticResource ModernTextBox}" HorizontalContentAlignment="Center" Margin="0,0,0,12"/>
+
+                    <!-- HEX Input -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Hex:" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBox x:Name="TxtHex" Grid.Row="3" Grid.Column="1" TextChanged="TxtHex_TextChanged" Style="{StaticResource ModernTextBox}"/>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Actions Row (OK and Cancel Buttons) -->
+        <Grid Grid.Row="1" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Content="Cancel" Grid.Column="1" Width="110" Height="40" Click="BtnCancel_Click" Style="{StaticResource MutedButton}" />
+            <Button Content="OK" Grid.Column="3" Width="110" Height="40" Click="BtnOk_Click" Style="{StaticResource AccentButton}" />
+        </Grid>
+    </Grid>
+</Window>
