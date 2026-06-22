@@ -2,4 +2,4 @@
 
 Download the latest installer:
 
-[Download Simple Editor EXE]([https://drive.google.com/file/d/xxxxxxxx/view?usp=sharing](https://drive.google.com/file/d/1PPKAzo5i1WXk_OChXW5DiachaBhIMK8-/view?usp=sharing))
+[Download Simple Editor EXE]([https://drive.google.com/file/d/xxxxxxxx/view?usp=sharing])
